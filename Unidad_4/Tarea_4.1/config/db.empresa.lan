@@ -1,0 +1,37 @@
+; =============================================================================
+;  db.empresa.lan - Zona DIRECTA de empresa.lan (Tarea 4.1)
+;  Ruta en el servidor: /etc/bind/zones/db.empresa.lan
+;
+;  Los nombres sin punto final se completan con el dominio ($ORIGIN):
+;  "www" = www.empresa.lan.     "@" = empresa.lan.
+; =============================================================================
+$ORIGIN empresa.lan.
+$TTL 86400                      ; tiempo de cache por defecto: 1 dia
+
+; --- SOA: datos de autoridad de la zona ---
+@   IN  SOA ns1.empresa.lan. admin.empresa.lan. (
+            2026110301  ; serial (AAAAMMDDnn): aumentarlo en cada cambio
+            3600        ; refresh: cada cuanto revisa un secundario
+            900         ; retry: reintento si falla el refresh
+            604800      ; expire: cuando un secundario deja de responder
+            3600 )      ; TTL de respuestas negativas (NXDOMAIN)
+
+; --- NS: servidor de nombres autoritativo ---
+@           IN  NS      ns1.empresa.lan.
+
+; --- MX: servidor de correo del dominio (prioridad 10) ---
+@           IN  MX  10  mail.empresa.lan.
+
+; --- A: nombre -> direccion IPv4 ---
+@           IN  A       192.168.50.10       ; empresa.lan
+srv01       IN  A       192.168.50.10       ; servidor principal
+ns1         IN  A       192.168.50.10       ; DNS
+mail        IN  A       192.168.50.10       ; correo (Tarea 4.3)
+cliente01   IN  A       192.168.50.20       ; estacion con reserva DHCP
+impresora01 IN  A       192.168.50.21       ; impresora con reserva DHCP
+
+; --- CNAME: alias que apuntan a otro nombre ---
+www         IN  CNAME   srv01               ; sitio web (Tarea 4.2)
+ftp         IN  CNAME   srv01               ; FTP/SFTP (Tarea 4.2)
+intranet    IN  CNAME   srv01
+webmail     IN  CNAME   mail

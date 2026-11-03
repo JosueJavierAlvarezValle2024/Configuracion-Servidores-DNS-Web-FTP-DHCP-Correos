@@ -1,0 +1,13 @@
+# Videos de las tareas (se suben a YouTube, no a git)
+*.mp4
+*.mkv
+*.mov
+*.avi
+
+# Preferencias locales de Claude (no son parte de la entrega)
+CLAUDE.md
+
+# Temporales de Office y del sistema
+~$*
+*.tmp
+Thumbs.db

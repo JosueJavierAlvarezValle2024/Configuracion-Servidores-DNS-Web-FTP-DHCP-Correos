@@ -1,0 +1,40 @@
+// =============================================================================
+//  named.conf.options - Opciones globales de BIND9 (Tarea 4.1)
+//  Ruta en el servidor: /etc/bind/named.conf.options
+// =============================================================================
+
+// Redes a las que el servidor atiende consultas: el propio equipo y la LAN.
+acl red_interna {
+    127.0.0.0/8;
+    192.168.50.0/24;
+};
+
+options {
+    directory "/var/cache/bind";            // cache y archivos de trabajo
+
+    // Escucha solo en loopback y en la interfaz de la LAN (enp0s8).
+    // No usa 127.0.0.53, que pertenece a systemd-resolved.
+    listen-on port 53 { 127.0.0.1; 192.168.50.10; };
+    listen-on-v6 { none; };
+
+    // Quien puede consultar y quien puede usar la recursion
+    allow-query     { red_interna; };
+    recursion yes;
+    allow-recursion { red_interna; };
+
+    // Nadie puede descargar la zona completa (transferencia AXFR)
+    allow-transfer  { none; };
+
+    // REENVIADORES: los nombres que no son de empresa.lan (google.com, etc.)
+    // se preguntan a estos servidores publicos. "forward first" intenta
+    // primero los reenviadores y, si no responden, resuelve desde la raiz.
+    forwarders {
+        8.8.8.8;        // Google Public DNS
+        1.1.1.1;        // Cloudflare
+    };
+    forward first;
+
+    dnssec-validation auto;                 // valida firmas DNSSEC de internet
+
+    version "no disponible";                // oculta la version de BIND
+};

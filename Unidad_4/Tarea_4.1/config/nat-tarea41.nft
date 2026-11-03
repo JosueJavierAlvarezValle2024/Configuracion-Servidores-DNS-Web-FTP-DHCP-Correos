@@ -1,0 +1,19 @@
+#!/usr/sbin/nft -f
+# =============================================================================
+#  nat-tarea41.nft - El servidor como puerta de enlace de la LAN (Tarea 4.1)
+#  Ruta en el servidor: /etc/tarea41/nat.nft  (lo carga tarea41-nat.service)
+#
+#  Los clientes de 192.168.50.0/24 salen a internet por la interfaz NAT de
+#  VirtualBox (enp0s3) usando la IP del servidor (enmascaramiento).
+# =============================================================================
+
+# Borra la tabla si ya existia, para poder recargar sin duplicar reglas
+table ip tarea41_nat
+delete table ip tarea41_nat
+
+table ip tarea41_nat {
+    chain postrouting {
+        type nat hook postrouting priority srcnat; policy accept;
+        ip saddr 192.168.50.0/24 oifname "enp0s3" masquerade
+    }
+}

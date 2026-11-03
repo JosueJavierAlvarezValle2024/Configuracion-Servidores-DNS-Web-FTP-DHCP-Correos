@@ -1,0 +1,10 @@
+# Los scripts y configuraciones se ejecutan en Linux: siempre con fin de linea LF
+*.sh        text eol=lf
+*.conf      text eol=lf
+*.nft       text eol=lf
+*.cf        text eol=lf
+db.*        text eol=lf
+*.md        text eol=lf
+*.docx      binary
+*.pdf       binary
+*.png       binary

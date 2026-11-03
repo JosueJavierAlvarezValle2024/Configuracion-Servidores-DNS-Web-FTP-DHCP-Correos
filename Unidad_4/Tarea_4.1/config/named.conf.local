@@ -1,0 +1,19 @@
+// =============================================================================
+//  named.conf.local - Zonas autoritativas de empresa.lan (Tarea 4.1)
+//  Ruta en el servidor: /etc/bind/named.conf.local
+// =============================================================================
+
+// ZONA DIRECTA: nombre -> IP  (registros A, CNAME, MX, NS)
+zone "empresa.lan" {
+    type primary;                                   // servidor maestro de la zona
+    file "/etc/bind/zones/db.empresa.lan";
+    allow-update { none; };                         // sin actualizaciones dinamicas
+};
+
+// ZONA INVERSA: IP -> nombre  (registros PTR) de la red 192.168.50.0/24.
+// El nombre de la zona son los 3 primeros octetos al reves + in-addr.arpa
+zone "50.168.192.in-addr.arpa" {
+    type primary;
+    file "/etc/bind/zones/db.rev";
+    allow-update { none; };
+};

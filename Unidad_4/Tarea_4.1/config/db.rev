@@ -1,0 +1,25 @@
+; =============================================================================
+;  db.rev - Zona INVERSA de 192.168.50.0/24 (Tarea 4.1)
+;  Ruta en el servidor: /etc/bind/zones/db.rev
+;  Zona: 50.168.192.in-addr.arpa
+;
+;  Cada registro PTR usa el ULTIMO octeto de la IP:
+;  "10" = 10.50.168.192.in-addr.arpa. = 192.168.50.10
+;  Los nombres de destino llevan punto final (son nombres completos).
+; =============================================================================
+$ORIGIN 50.168.192.in-addr.arpa.
+$TTL 86400
+
+@   IN  SOA ns1.empresa.lan. admin.empresa.lan. (
+            2026110301  ; serial
+            3600        ; refresh
+            900         ; retry
+            604800      ; expire
+            3600 )      ; TTL negativo
+
+@       IN  NS      ns1.empresa.lan.
+
+; --- PTR: direccion IPv4 -> nombre ---
+10      IN  PTR     srv01.empresa.lan.
+20      IN  PTR     cliente01.empresa.lan.
+21      IN  PTR     impresora01.empresa.lan.
