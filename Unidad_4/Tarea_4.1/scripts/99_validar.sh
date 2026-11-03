@@ -78,7 +78,8 @@ esperar "dhcpd escucha solo en $IFACE_LAN"                "\"$IFACE_LAN\"" grep 
 esperar "Rango dinamico 1"                                "192.168.50.100 192.168.50.149" rango 192.168.50.100
 esperar "Rango dinamico 2 (excluye .150-.159)"            "192.168.50.160 192.168.50.200" rango 192.168.50.160
 esperar "Reserva por MAC de cliente01"                    "$IP_RESERVA" reserva cliente01
-if journalctl -u isc-dhcp-server --no-pager 2>/dev/null | grep -q "DHCPACK on $IP_RESERVA"; then
+# (sin grep -q: con pipefail, cortar la lectura del journal haria fallar la prueba)
+if journalctl -u isc-dhcp-server --no-pager 2>/dev/null | grep "DHCPACK on $IP_RESERVA" >/dev/null; then
     pasa "cliente01 recibio su IP reservada $IP_RESERVA (DHCPACK en el log)"
 else
     falla "Aun no hay DHCPACK para $IP_RESERVA (enciende la VM cliente y vuelve a validar)"

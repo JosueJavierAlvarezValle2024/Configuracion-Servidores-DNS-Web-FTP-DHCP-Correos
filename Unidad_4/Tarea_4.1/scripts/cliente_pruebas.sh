@@ -31,7 +31,11 @@ renovar() {
 cambiar_mac() {   # $1 = random | permanent
     [[ -n "$CON" ]] || CON="$(nmcli -t -f NAME,DEVICE connection show | awk -F: -v d="$IFACE" '$2==d{print $1; exit}')"
     sudo nmcli connection modify "$CON" 802-3-ethernet.cloned-mac-address "$1"
-    sudo nmcli connection up "$CON" >/dev/null
+    if ! sudo nmcli connection up "$CON" >/dev/null; then
+        echo "No se recibio IP con esta MAC."
+        echo "En VirtualBox: Cliente-U4 > Red > Adaptador 1 > Avanzado > Modo promiscuo: 'Permitir VMs'"
+        echo "(sin eso VirtualBox descarta las respuestas dirigidas a una MAC distinta a la configurada)"
+    fi
     sleep 2
 }
 
