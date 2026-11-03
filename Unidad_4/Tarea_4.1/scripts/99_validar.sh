@@ -52,7 +52,7 @@ titulo "Servicios"
 for s in isc-dhcp-server named tarea41-nat; do
     printf '%-18s %s\n' "$s" "$(systemctl is-active "$s")"
 done
-ss -lunp | grep -E 'dhcpd|named' | awk '{print $1, $5, $7}'
+ss -lunp | grep -E 'dhcpd|named' | awk '{print "UDP", $4, $6}' | sed -E 's/,pid=[0-9]+,fd=[0-9]+//g'
 
 titulo "Concesiones DHCP activas (/var/lib/dhcp/dhcpd.leases)"
 printf '%-15s %-18s %-14s %-20s %s\n' IP MAC EQUIPO INICIO FIN
