@@ -30,6 +30,11 @@ esperar() {
     if [[ "$salida" == *"$texto"* ]]; then pasa "$d -> $salida"; else falla "$d -> '${salida:-sin respuesta}' (se esperaba: $texto)"; fi
 }
 q() { dig +short @"$IP_SERVIDOR" "$@"; }
+# Datos resumidos para que cada prueba muestre una sola linea corta
+rango()   { grep -oE "range $1 [0-9.]+" /etc/dhcp/dhcpd.conf; }
+reserva() { awk -v h="$1" '$1=="host" && $2==h {f=1} f && $1=="hardware" {m=$3} f && $1=="fixed-address" {i=$2} /^}/ {f=0}
+                END {print m " -> " i}' /etc/dhcp/dhcpd.conf | tr -d ';'; }
+estado()  { dig @"$IP_SERVIDOR" "$1" | grep -oE 'status: [A-Z]+'; }
 
 titulo "Sistema"
 echo "Equipo: $(hostname)   Fecha: $(date)"
@@ -70,9 +75,9 @@ titulo "Pruebas DHCP"
 probar  "isc-dhcp-server esta activo"                     servicio_activo isc-dhcp-server
 probar  "dhcpd.conf sin errores de sintaxis"              dhcpd -4 -t -cf /etc/dhcp/dhcpd.conf
 esperar "dhcpd escucha solo en $IFACE_LAN"                "\"$IFACE_LAN\"" grep '^INTERFACESv4' /etc/default/isc-dhcp-server
-esperar "Rango dinamico 1 (.100-.149)"                    "range 192.168.50.100 192.168.50.149" grep -E '^\s*range' /etc/dhcp/dhcpd.conf
-esperar "Rango dinamico 2 (.160-.200), excluye .150-.159" "range 192.168.50.160 192.168.50.200" grep -E '^\s*range' /etc/dhcp/dhcpd.conf
-esperar "Reserva por MAC de cliente01"                    "$IP_RESERVA" grep -A3 '^host cliente01' /etc/dhcp/dhcpd.conf
+esperar "Rango dinamico 1"                                "192.168.50.100 192.168.50.149" rango 192.168.50.100
+esperar "Rango dinamico 2 (excluye .150-.159)"            "192.168.50.160 192.168.50.200" rango 192.168.50.160
+esperar "Reserva por MAC de cliente01"                    "$IP_RESERVA" reserva cliente01
 if journalctl -u isc-dhcp-server --no-pager 2>/dev/null | grep -q "DHCPACK on $IP_RESERVA"; then
     pasa "cliente01 recibio su IP reservada $IP_RESERVA (DHCPACK en el log)"
 else
@@ -93,7 +98,7 @@ esperar "NS    $DOMINIO"                                  "ns1.$DOMINIO."  q "$D
 esperar "PTR   $IP_SERVIDOR"                              "srv01.$DOMINIO." q -x "$IP_SERVIDOR"
 esperar "PTR   $IP_RESERVA"                               "cliente01.$DOMINIO." q -x "$IP_RESERVA"
 esperar "Reenviadores: resuelve www.google.com"           "."              q www.google.com A
-esperar "Nombre inexistente responde NXDOMAIN"            "NXDOMAIN"       dig @"$IP_SERVIDOR" "noexiste.$DOMINIO"
+esperar "Nombre inexistente responde NXDOMAIN"            "NXDOMAIN"       estado "noexiste.$DOMINIO"
 
 titulo "Resultado"
 echo "Pruebas que pasaron: $pasaron   Pruebas que fallaron: $fallaron"
