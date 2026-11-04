@@ -82,7 +82,7 @@ ip -br addr
 > Se ve `enp0s3` (NAT) y `enp0s8` con **192.168.50.10**.
 
 ```bash
-systemctl status isc-dhcp-server named --no-pager | grep -E '●|Active'
+systemctl status isc-dhcp-server named --no-pager -n 0
 ```
 > Los dos servicios en **active (running)**.
 
