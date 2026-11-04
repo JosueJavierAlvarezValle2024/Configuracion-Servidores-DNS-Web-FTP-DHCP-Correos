@@ -1,0 +1,11 @@
+# =============================================================================
+#  vsftpd-tarea42 - Autenticacion PAM del servidor FTP (Tarea 4.2)
+#  Ruta en el servidor: /etc/pam.d/vsftpd-tarea42
+#  Igual a /etc/pam.d/vsftpd de Ubuntu, sin pam_shells.so: los usuarios FTP
+#  tienen shell /usr/sbin/nologin a proposito.
+# =============================================================================
+# Usuarios del sistema prohibidos en FTP (root, daemon, ...)
+auth    required    pam_listfile.so item=user sense=deny file=/etc/ftpusers onerr=succeed
+@include common-account
+@include common-session
+@include common-auth

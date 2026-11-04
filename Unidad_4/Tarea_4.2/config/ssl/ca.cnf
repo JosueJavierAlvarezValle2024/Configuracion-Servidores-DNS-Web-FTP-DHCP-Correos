@@ -1,0 +1,22 @@
+# =============================================================================
+#  ca.cnf - Datos de la AUTORIDAD CERTIFICADORA (CA) local de empresa.lan
+#  La CA firma el certificado del servidor. Los clientes que importan
+#  ca.crt confian automaticamente en todos los certificados que firme.
+# =============================================================================
+[req]
+distinguished_name = dn
+prompt             = no
+x509_extensions    = ext_ca
+
+[dn]
+C  = MX
+ST = Coahuila
+L  = Monclova
+O  = Empresa LAN (laboratorio)
+OU = Sistemas
+CN = Empresa LAN - CA raiz
+
+[ext_ca]
+basicConstraints     = critical, CA:TRUE, pathlen:0   # es una CA y no crea sub-CA
+keyUsage             = critical, keyCertSign, cRLSign  # solo firma certificados
+subjectKeyIdentifier = hash

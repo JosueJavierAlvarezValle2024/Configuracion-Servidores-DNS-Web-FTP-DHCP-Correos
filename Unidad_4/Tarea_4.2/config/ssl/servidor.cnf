@@ -1,0 +1,39 @@
+# =============================================================================
+#  servidor.cnf - Solicitud y extensiones del certificado del servidor
+#  Un solo certificado sirve para todos los nombres del servidor (SAN).
+# =============================================================================
+[req]
+distinguished_name = dn
+prompt             = no
+req_extensions     = ext_solicitud
+
+[dn]
+C  = MX
+ST = Coahuila
+L  = Monclova
+O  = Empresa LAN (laboratorio)
+OU = Sistemas
+CN = www.empresa.lan
+
+# Extensiones incluidas en la solicitud (CSR)
+[ext_solicitud]
+subjectAltName = @nombres
+
+# Extensiones que agrega la CA al firmar
+[ext_servidor]
+basicConstraints       = critical, CA:FALSE
+keyUsage               = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = serverAuth                 # solo para servidores TLS
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid, issuer
+subjectAltName         = @nombres
+
+# Nombres alternativos (SAN): los navegadores solo aceptan el certificado
+# si el nombre del sitio aparece aqui
+[nombres]
+DNS.1 = www.empresa.lan
+DNS.2 = empresa.lan
+DNS.3 = intranet.empresa.lan
+DNS.4 = ftp.empresa.lan
+DNS.5 = srv01.empresa.lan
+IP.1  = 192.168.50.10
