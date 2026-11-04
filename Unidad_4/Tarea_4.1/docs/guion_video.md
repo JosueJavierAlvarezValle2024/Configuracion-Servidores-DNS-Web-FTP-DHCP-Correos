@@ -82,12 +82,12 @@ ip -br addr
 > Se ve `enp0s3` (NAT) y `enp0s8` con **192.168.50.10**.
 
 ```bash
-systemctl status isc-dhcp-server named --no-pager -n 0
+systemctl status isc-dhcp-server named -n 0
 ```
-> Los dos servicios en **active (running)**.
+> Los dos servicios en **active (running)**. Si abajo aparece `(END)` o `:`, presiona **q** para volver.
 
 ```bash
-grep -vE '^\s*#|^\s*$' /etc/dhcp/dhcpd.conf
+cat /etc/dhcp/dhcpd.conf
 ```
 > Señala: tiempos de concesión, los **dos `range`** (la exclusión .150–.159) y la **reserva `host cliente01`**.
 
@@ -102,7 +102,7 @@ cat /etc/bind/zones/db.rev
 > Señala los registros **PTR**.
 
 ```bash
-grep -A4 forwarders /etc/bind/named.conf.options
+cat /etc/bind/named.conf.options
 ```
 > Los **reenviadores** 8.8.8.8 y 1.1.1.1.
 
@@ -161,7 +161,7 @@ bash scripts/cliente_pruebas.sh
 ## 6. Cliente: RENOVACIÓN de la concesión (≈ 40 s)
 
 ```bash
-bash scripts/cliente_pruebas.sh --renovar
+bash scripts/cliente_pruebas.sh renovar
 ```
 > En la terminal 2 del servidor se ve de nuevo el ciclo **DISCOVER → OFFER → REQUEST → ACK** y el cliente conserva la **.20**.
 
@@ -171,7 +171,7 @@ Detén el log del servidor con **Ctrl + C** cuando termines este paso.
 
 ## 7. Cliente: resolución de nombres (≈ 2 min)
 
-Limpia la pantalla del cliente con `clear`. Se indica el servidor `192.168.50.10` al final para que se vea que responde **tu** DNS.
+Limpia la pantalla del cliente con `clear`. En `nslookup` se escribe la IP del servidor al final para que se vea que responde **tu** DNS (línea `Server: 192.168.50.10`).
 
 **Resolución directa:**
 
@@ -181,7 +181,7 @@ nslookup www.empresa.lan 192.168.50.10
 > `www.empresa.lan` es alias (**CNAME**) de `srv01.empresa.lan` → **192.168.50.10**.
 
 ```bash
-dig @192.168.50.10 cliente01.empresa.lan A +short
+dig cliente01.empresa.lan A +short
 ```
 > **192.168.50.20**
 
@@ -193,26 +193,26 @@ nslookup 192.168.50.10 192.168.50.10
 > `10.50.168.192.in-addr.arpa name = srv01.empresa.lan.`
 
 ```bash
-dig @192.168.50.10 -x 192.168.50.20 +short
+dig -x 192.168.50.20 +short
 ```
 > **cliente01.empresa.lan.**
 
 **Otros registros:**
 
 ```bash
-dig @192.168.50.10 empresa.lan MX +short
+dig empresa.lan MX +short
 ```
 > **10 mail.empresa.lan.**
 
 ```bash
-dig @192.168.50.10 empresa.lan NS +short
+dig empresa.lan NS +short
 ```
 > **ns1.empresa.lan.**
 
 **Reenviadores (nombre de internet):**
 
 ```bash
-dig @192.168.50.10 www.google.com +short
+dig www.google.com +short
 ```
 > IPs públicas de Google: el servidor reenvió la consulta a 8.8.8.8 / 1.1.1.1.
 
@@ -240,7 +240,7 @@ Termina el video con un texto: *"Tarea 4.1 completada — DHCP y DNS funcionando
 
 | Problema | Solución |
 |---|---|
-| El cliente se queda en "conectando" | En el servidor: `sudo systemctl restart isc-dhcp-server` y en el cliente `bash scripts/cliente_pruebas.sh --renovar` |
+| El cliente se queda en "conectando" | En el servidor: `sudo systemctl restart isc-dhcp-server` y en el cliente `bash scripts/cliente_pruebas.sh renovar` |
 | El cliente no recibe la .20 | Revisa que la MAC en VirtualBox sea exactamente `080027818D77` |
 | `nslookup` responde `REFUSED` | El cliente no tiene IP: revisa con `ip -br addr` |
 | No aparecen eventos en el log | Vuelve a abrir `sudo journalctl -u isc-dhcp-server -f` |

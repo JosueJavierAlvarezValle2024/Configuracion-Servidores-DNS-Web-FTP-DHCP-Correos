@@ -40,9 +40,10 @@ cambiar_mac() {   # $1 = random | permanent
 }
 
 case "${1:-}" in
-    --renovar)        renovar ;;
-    --mac-aleatoria)  titulo "Usando una MAC aleatoria"; cambiar_mac random ;;
-    --mac-original)   titulo "Volviendo a la MAC original"; cambiar_mac permanent ;;
+    # Las opciones se aceptan con o sin "--" (ej. renovar o --renovar)
+    --renovar|renovar)              renovar ;;
+    --mac-aleatoria|mac-aleatoria)  titulo "Usando una MAC aleatoria"; cambiar_mac random ;;
+    --mac-original|mac-original)    titulo "Volviendo a la MAC original"; cambiar_mac permanent ;;
     "") ;;
     *) echo "Opcion desconocida: $1"; exit 1 ;;
 esac
