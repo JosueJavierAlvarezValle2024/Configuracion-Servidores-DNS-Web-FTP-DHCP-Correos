@@ -11,6 +11,10 @@
 # =============================================================================
 source "$(dirname "$0")/lib/comun.sh"
 requiere_root
+# Herramientas de las pruebas (Xubuntu no trae curl por defecto)
+for p in curl sshpass; do
+    command -v "$p" >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install -y -q "$p" >/dev/null
+done
 set +e
 
 mkdir -p "$BASE_DIR/evidencias"
@@ -24,6 +28,13 @@ falla() { echo -e "${ROJO}[FALLA]${NC} $1"; ((fallaron++)); }
 probar() { local d="$1"; shift; if "$@" &>/dev/null; then pasa "$d"; else falla "$d"; fi; }
 # negar "descripcion" comando...            -> pasa si el comando FALLA (acceso denegado)
 negar()  { local d="$1"; shift; if "$@" &>/dev/null; then falla "$d"; else pasa "$d"; fi; }
+# denegado "descripcion" comando-curl...    -> pasa solo si el servidor RECHAZA el inicio
+#                                              de sesion (curl termina con codigo 67)
+denegado() {
+    local d="$1"; shift
+    "$@" &>/dev/null; local c=$?
+    if [[ $c -eq 67 ]]; then pasa "$d (530: acceso denegado)"; else falla "$d (codigo de curl: $c, se esperaba 67)"; fi
+}
 # esperar "descripcion" "texto" comando...  -> pasa si la salida contiene el texto
 esperar() {
     local d="$1" texto="$2"; shift 2
@@ -36,7 +47,8 @@ URL_INT="https://intranet.$DOMINIO"
 FTP_HOST="ftp.$DOMINIO"
 U1="${USUARIOS_FTP[0]}"; U2="${USUARIOS_FTP[1]}"
 C1="$(clave_de "$U1")"; C2="$(clave_de "$U2")"
-SSH_OPC=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o PubkeyAuthentication=no)
+# BatchMode=no va antes de "sftp -b": si no, sftp desactiva el inicio con contrasena
+SSH_OPC=(-o BatchMode=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o PubkeyAuthentication=no)
 
 # Ayudantes de las pruebas
 encabezados() { curl -sk -I "$1"; }
@@ -100,8 +112,8 @@ negar   "Usuario webapp no puede modificar datos"       webapp_modifica
 
 titulo "Pruebas FTPS (vsftpd)"
 probar  "vsftpd esta activo"                            servicio_activo vsftpd
-negar   "Acceso anonimo rechazado"                      ftps -u anonymous:correo@x "ftp://$FTP_HOST/"
-negar   "Inicio de sesion sin cifrar rechazado"         curl -s -u "$U1:$C1" "ftp://$FTP_HOST/"
+denegado "Acceso anonimo rechazado"                     ftps -u anonymous:correo@x "ftp://$FTP_HOST/"
+denegado "Inicio de sesion sin cifrar rechazado"        curl -s -u "$U1:$C1" "ftp://$FTP_HOST/"
 probar  "$U1 inicia sesion con TLS"                     ftps -u "$U1:$C1" "ftp://$FTP_HOST/"
 esperar "Chroot: la raiz de $U1 solo contiene archivos" "archivos"             ftps -l -u "$U1:$C1" "ftp://$FTP_HOST/"
 negar   "Chroot: $U1 no ve la carpeta de $U2"           bash -c "curl -s --ssl-reqd --cacert $CA_CRT -l -u '$U1:$C1' ftp://$FTP_HOST/ | grep -q $U2"

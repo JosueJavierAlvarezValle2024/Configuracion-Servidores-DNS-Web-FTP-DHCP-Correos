@@ -14,7 +14,7 @@ source "$(dirname "$0")/lib/comun.sh"
 requiere_root
 
 titulo "Instalando Apache, PHP y MariaDB"
-instalar_paquetes apache2 php libapache2-mod-php php-mysql mariadb-server
+instalar_paquetes apache2 php libapache2-mod-php php-mysql mariadb-server curl
 systemctl enable --now apache2 mariadb --quiet
 ok "$(apache2 -v | head -n1)"
 ok "PHP $(php -r 'echo PHP_VERSION;')"
