@@ -8,6 +8,9 @@ db.*        text eol=lf
 *.sql       text eol=lf
 *.cnf       text eol=lf
 *.pam       text eol=lf
+*.zona      text eol=lf
+*.csv       text eol=lf
+alias_virtuales text eol=lf
 *.md        text eol=lf
 *.docx      binary
 *.pdf       binary

@@ -1,0 +1,34 @@
+# =============================================================================
+#  mail.cnf - Certificado del servidor de correo (Tarea 4.3)
+#  Lo firma la misma CA local de la Tarea 4.2 (/etc/ssl/empresa/ca.crt),
+#  asi que los equipos que ya confian en ella no muestran advertencias.
+# =============================================================================
+[req]
+distinguished_name = dn
+prompt             = no
+req_extensions     = ext_solicitud
+
+[dn]
+C  = MX
+ST = Coahuila
+L  = Monclova
+O  = Empresa LAN (laboratorio)
+OU = Sistemas
+CN = mail.empresa.lan
+
+[ext_solicitud]
+subjectAltName = @nombres
+
+[ext_servidor]
+basicConstraints       = critical, CA:FALSE
+keyUsage               = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = serverAuth
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid, issuer
+subjectAltName         = @nombres
+
+[nombres]
+DNS.1 = mail.empresa.lan
+DNS.2 = webmail.empresa.lan
+DNS.3 = empresa.lan
+IP.1  = 192.168.50.10

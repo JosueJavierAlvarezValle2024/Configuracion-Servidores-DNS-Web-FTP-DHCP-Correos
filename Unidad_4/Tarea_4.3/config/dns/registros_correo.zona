@@ -1,0 +1,20 @@
+; =============================================================================
+;  registros_correo.zona - Registros DNS del correo (Tarea 4.3)
+;  01_dns_correo.sh agrega este bloque a /etc/bind/zones/db.empresa.lan
+;  (entre BEGIN/END TAREA43) y aumenta el serial de la zona.
+;
+;  Ya existian desde la Tarea 4.1 y se comprueban:
+;    @     IN  MX  10  mail.empresa.lan.    ; servidor de correo del dominio
+;    mail  IN  A       192.168.50.10        ; direccion del servidor de correo
+; =============================================================================
+
+; SPF: solo los servidores del registro MX pueden enviar correo de empresa.lan;
+; cualquier otro remitente debe rechazarse (-all)
+@        IN  TXT  "v=spf1 mx -all"
+
+; DMARC: politica para los correos que fallen SPF (p=none: solo informar)
+_dmarc   IN  TXT  "v=DMARC1; p=none; rua=mailto:postmaster@empresa.lan"
+
+; Nombres comunes que usan los clientes de correo al configurarse
+smtp     IN  CNAME  mail
+imap     IN  CNAME  mail

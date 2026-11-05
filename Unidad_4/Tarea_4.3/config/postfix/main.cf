@@ -1,0 +1,90 @@
+# =============================================================================
+#  main.cf - Postfix 3.10, agente de transferencia de correo (MTA) - Tarea 4.3
+#  Ruta en el servidor: /etc/postfix/main.cf
+#
+#  - Dominio de correo: empresa.lan (buzones virtuales, sin usuarios de Linux)
+#  - Entrega a los buzones: Dovecot por LMTP
+#  - Autenticacion de los usuarios: Dovecot SASL (solo en el puerto 587 con TLS)
+#  Nota: Postfix NO acepta comentarios al final de una linea; van en la de arriba.
+# =============================================================================
+
+compatibility_level = 3.6
+
+# --- Identidad del servidor ---
+# Nombre con el que se presenta (debe coincidir con el registro A y MX del DNS)
+myhostname = mail.empresa.lan
+mydomain = empresa.lan
+# Las direcciones sin dominio se completan como usuario@empresa.lan
+myorigin = $mydomain
+smtpd_banner = $myhostname ESMTP
+biff = no
+append_dot_mydomain = no
+readme_directory = no
+
+# --- Red ---
+# Escucha en el propio equipo y en la red interna (no en la NAT)
+inet_interfaces = 127.0.0.1, 192.168.50.10
+inet_protocols = ipv4
+# Solo el propio servidor puede enviar sin autenticarse
+mynetworks = 127.0.0.0/8
+
+# --- Entrega local (solo para cuentas del sistema como root) ---
+# empresa.lan NO va aqui: es un dominio virtual (ver abajo)
+mydestination = $myhostname, localhost.$mydomain, localhost
+alias_maps =
+alias_database =
+
+# --- Dominio virtual empresa.lan ---
+virtual_mailbox_domains = empresa.lan
+# Buzones existentes (los crea scripts/crear_buzon.sh). texthash: no requiere postmap
+virtual_mailbox_maps = texthash:/etc/postfix/buzones
+# Alias: postmaster@, admin@, soporte@ -> buzones reales
+virtual_alias_maps = texthash:/etc/postfix/alias_virtuales
+# Dovecot recibe los mensajes y los guarda en el buzon (MDA)
+virtual_transport = lmtp:unix:private/dovecot-lmtp
+
+# --- Correo hacia otros dominios ---
+# En el laboratorio no hay salida a servidores de correo de internet: los
+# mensajes externos se rechazan de inmediato en lugar de quedarse en la cola.
+default_transport = error:entrega externa deshabilitada en el laboratorio
+relay_transport = error:entrega externa deshabilitada en el laboratorio
+
+# --- Cifrado TLS del servidor (puertos 25 y 587) ---
+smtpd_tls_cert_file = /etc/ssl/empresa/mail.crt
+smtpd_tls_key_file = /etc/ssl/empresa/private/mail.key
+# 25: ofrece STARTTLS; 587 lo exige (ver master.cf)
+smtpd_tls_security_level = may
+# Nunca se acepta usuario y contrasena sin cifrar
+smtpd_tls_auth_only = yes
+smtpd_tls_protocols = >=TLSv1.2
+smtpd_tls_mandatory_protocols = >=TLSv1.2
+smtpd_tls_mandatory_ciphers = high
+# Registra en mail.log la version de TLS y el cifrado de cada conexion
+smtpd_tls_loglevel = 1
+smtpd_tls_received_header = yes
+
+# --- Cifrado TLS como cliente (cuando Postfix envia a otro servidor) ---
+smtp_tls_security_level = may
+smtp_tls_loglevel = 1
+
+# --- Autenticacion SASL a traves de Dovecot ---
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+# Desactivada en el puerto 25; master.cf la activa en el 587
+smtpd_sasl_auth_enable = no
+smtpd_sasl_security_options = noanonymous
+
+# --- Reglas anti abuso ---
+# Nadie puede usar el servidor para reenviar correo a otros dominios (open relay)
+smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
+smtpd_helo_required = yes
+smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname
+# No revela que direcciones existen
+disable_vrfy_command = yes
+smtpd_reject_unlisted_recipient = yes
+
+# --- Limites ---
+# 25 MB por mensaje
+message_size_limit = 26214400
+mailbox_size_limit = 0
+recipient_delimiter = +

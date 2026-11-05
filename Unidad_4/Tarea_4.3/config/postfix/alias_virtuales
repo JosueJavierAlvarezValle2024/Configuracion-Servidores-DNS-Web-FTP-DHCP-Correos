@@ -1,0 +1,15 @@
+# =============================================================================
+#  alias_virtuales - Direcciones que redirigen a buzones reales (Tarea 4.3)
+#  Ruta en el servidor: /etc/postfix/alias_virtuales
+#  Formato: direccion   destino[,destino...]
+#  Se carga con "postfix reload" (tabla texthash, no requiere postmap)
+# =============================================================================
+
+# Direcciones obligatorias de todo dominio de correo (RFC 5321 / RFC 2142)
+postmaster@empresa.lan    ana.torres@empresa.lan
+abuse@empresa.lan         ana.torres@empresa.lan
+
+# Direcciones de area
+admin@empresa.lan         ana.torres@empresa.lan
+soporte@empresa.lan       ana.torres@empresa.lan
+finanzas@empresa.lan      maria.lopez@empresa.lan, pedro.ruiz@empresa.lan
