@@ -58,8 +58,14 @@ pruebas_web() {
         if [[ "$codigo" == "200" ]]; then bien "https://$sitio.$DOMINIO -> $codigo · $tituloweb"
         else mal "https://$sitio.$DOMINIO -> $codigo (¿importaste la CA? usa: confiar-ca)"; fi
     done
-    curl -s "https://www.$DOMINIO/" | grep -q 'MariaDB: conectado' \
-        && bien "La pagina PHP consulta MariaDB" || mal "La pagina no muestra datos de MariaDB"
+    # Se guarda la pagina completa antes de buscar (con pipefail, "grep -q" en una
+    # tuberia corta la descarga y la prueba fallaria aunque el texto exista)
+    principal="$(curl -s "https://www.$DOMINIO/")"
+    if grep -qF 'MariaDB: conectado' <<< "$principal"; then
+        bien "La pagina PHP consulta MariaDB"
+    else
+        mal "La pagina no muestra datos de MariaDB"
+    fi
 
     titulo "Cabeceras de seguridad"
     curl -sI "https://www.$DOMINIO/" | grep -iE '^(server|strict-transport|x-content|x-frame)'
