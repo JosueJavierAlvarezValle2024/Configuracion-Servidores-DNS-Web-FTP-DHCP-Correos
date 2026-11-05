@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  04_postfix.sh - Postfix: SMTP (25) y envio autenticado con TLS (587)
+#  03_postfix.sh - Postfix: SMTP (25) y envio autenticado con TLS (587)
 #
 #  1) Instala Postfix sin el asistente de configuracion de Ubuntu
 #  2) Instala main.cf, master.cf y los alias virtuales
 #  3) Revisa la configuracion (postfix check) y reinicia
 #
-#  Requiere: 03_dovecot.sh (Postfix usa los sockets de Dovecot)
-#  Uso: sudo bash scripts/04_postfix.sh
+#  Va ANTES de Dovecot: al instalarse crea /var/spool/postfix/private, donde
+#  Dovecot pone sus sockets (LMTP y autenticacion).
+#  Uso: sudo bash scripts/03_postfix.sh
 # =============================================================================
 source "$(dirname "$0")/lib/comun.sh"
 requiere_root

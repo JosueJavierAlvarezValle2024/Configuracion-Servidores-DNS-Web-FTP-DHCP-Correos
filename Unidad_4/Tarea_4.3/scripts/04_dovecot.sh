@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  03_dovecot.sh - Dovecot 2.4: entrega (LMTP), IMAPS y autenticacion SASL
+#  04_dovecot.sh - Dovecot 2.4: entrega (LMTP), IMAPS y autenticacion SASL
 #
 #  1) Instala dovecot-imapd y dovecot-lmtpd
 #  2) Crea el usuario de sistema "vmail" (uid 5000), dueno de todos los buzones
 #  3) Reemplaza /etc/dovecot/dovecot.conf por config/dovecot/dovecot.conf
 #  4) Crea el archivo de usuarios virtuales /etc/dovecot/usuarios
 #
-#  Requiere: 02_certificado_correo.sh
-#  Uso: sudo bash scripts/03_dovecot.sh
+#  Requiere: 02_certificado_correo.sh y 03_postfix.sh (sus sockets van en
+#            /var/spool/postfix/private, que crea Postfix)
+#  Uso: sudo bash scripts/04_dovecot.sh
 # =============================================================================
 source "$(dirname "$0")/lib/comun.sh"
 requiere_root
 
 [[ -f "$MAIL_CRT" ]] || error "Falta el certificado: ejecuta primero 02_certificado_correo.sh"
+[[ -d /var/spool/postfix/private ]] || error "Falta /var/spool/postfix/private: ejecuta primero 03_postfix.sh"
 
 titulo "Instalando Dovecot y rsyslog"
 # rsyslog escribe /var/log/mail.log (Postfix y Dovecot registran en syslog)
@@ -23,7 +25,7 @@ ok "$(dovecot --version | sed 's/^/Dovecot /')"
 
 titulo "Usuario vmail (dueno de los buzones)"
 getent group vmail >/dev/null || groupadd -g "$VMAIL_UID" vmail
-id vmail &>/dev/null || useradd -r -u "$VMAIL_UID" -g vmail -d "$VMAIL_DIR" -s /usr/sbin/nologin -c "Buzones virtuales ($MARCA)" vmail
+id vmail &>/dev/null || useradd -M -u "$VMAIL_UID" -g vmail -d "$VMAIL_DIR" -s /usr/sbin/nologin -c "Buzones virtuales ($MARCA)" vmail
 respaldar "$VMAIL_DIR"
 install -d -m 770 -o vmail -g vmail "$VMAIL_DIR"
 ok "vmail ($(id vmail)) · buzones en $VMAIL_DIR"

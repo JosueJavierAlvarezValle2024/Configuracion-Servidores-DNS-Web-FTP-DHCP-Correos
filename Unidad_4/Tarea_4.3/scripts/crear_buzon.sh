@@ -17,7 +17,7 @@ source "$(dirname "$0")/lib/comun.sh"
 requiere_root
 
 [[ -f "$USUARIOS_DOVECOT" && -f "$BUZONES_POSTFIX" ]] \
-    || error "Faltan los archivos de buzones: ejecuta primero 03_dovecot.sh y 04_postfix.sh"
+    || error "Faltan los archivos de buzones: ejecuta primero 03_postfix.sh y 04_dovecot.sh"
 touch "$CREDENCIALES"; chmod 600 "$CREDENCIALES"
 
 recargar() { systemctl reload postfix 2>/dev/null || true; doveadm reload 2>/dev/null || true; }

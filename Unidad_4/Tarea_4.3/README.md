@@ -97,8 +97,8 @@ Unidad_4/Tarea_4.3/
 │   ├── 00_ejecutar_todo.sh      # 01 → 02 → 03 → 04 → 05 → 99
 │   ├── 01_dns_correo.sh         # registros DNS del correo
 │   ├── 02_certificado_correo.sh # certificado firmado por la CA local
-│   ├── 03_dovecot.sh            # Dovecot + usuario vmail + rsyslog
-│   ├── 04_postfix.sh            # Postfix
+│   ├── 03_postfix.sh            # Postfix (va antes: crea la carpeta de los sockets)
+│   ├── 04_dovecot.sh            # Dovecot + usuario vmail + rsyslog
 │   ├── 05_buzones.sh            # crea los buzones del CSV
 │   ├── crear_buzon.sh           # alta, cambio de contraseña y baja de buzones
 │   ├── 98_revertir.sh           # deshace todo (no toca 4.1 ni 4.2)
@@ -159,5 +159,5 @@ Agrega dos cuentas, por ejemplo `ana.torres` y `pedro.ruiz`, y envía correos de
 
 - **Dovecot 2.4** cambió la sintaxis respecto a la 2.3 de la mayoría de los tutoriales. Por ejemplo: `ssl_server_cert_file` en lugar de `ssl_cert = <`, `mail_driver` y `mail_path` en lugar de `mail_location`, `auth_allow_cleartext` en lugar de `disable_plaintext_auth`, y variables `%{user | domain}`.
 - Postfix y Dovecot **no aceptan comentarios al final de una línea**; todos van en su propia línea.
-- `03_dovecot.sh` instala **rsyslog**, que es el que escribe `/var/log/mail.log`.
+- `04_dovecot.sh` instala **rsyslog**, que es el que escribe `/var/log/mail.log`.
 - Si los scripts dan error `$'\r': command not found`, conviértelos a fin de línea Unix con `sed -i 's/\r$//' scripts/*.sh scripts/lib/*.sh`.
