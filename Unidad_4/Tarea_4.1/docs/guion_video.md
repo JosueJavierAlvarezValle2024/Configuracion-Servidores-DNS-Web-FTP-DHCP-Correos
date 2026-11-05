@@ -11,6 +11,8 @@ La **cámara web** debe aparecer en la **esquina inferior derecha**.
 
 Duración sugerida: **6 a 9 minutos**.
 
+> **Cómo usar este guion:** primero graba **solo la pantalla, sin voz**, siguiendo los pasos y comandos. Después grábate con cámara y micrófono explicando ese video: los bloques **🎙️ Qué decir** están en el mismo orden que la grabación. Léelos como apoyo y dilo con tus palabras.
+
 ---
 
 ## 0. Preparación (antes de presionar "Grabar")
@@ -64,6 +66,8 @@ Debe terminar en **"Pruebas que fallaron: 0"**. Luego limpia la pantalla con `cl
 
 ## 1. Presentación (≈ 20 s)
 
+> 🎙️ **Qué decir:** Hola, soy Josué Javier Álvarez Valle, de la materia Administración de Servidores. En la Tarea 4.1 configuro los servicios base de una red: un servidor DHCP, que reparte las direcciones IP automáticamente, y un servidor DNS para el dominio empresa.lan, que traduce nombres a direcciones. La red es 192.168.50.0/24 y el servidor tiene la IP 192.168.50.10.
+
 Muestra en pantalla un texto o diapositiva con:
 
 - Tarea 4.1 — Servidor DHCP y DNS
@@ -73,6 +77,8 @@ Muestra en pantalla un texto o diapositiva con:
 ---
 
 ## 2. Servidor: configuración y servicios (≈ 1:30 min)
+
+> 🎙️ **Qué decir:** El servidor tiene dos tarjetas de red: enp0s3 sale a internet y enp0s8 está en la red interna con la IP fija .10. Los dos servicios, isc-dhcp-server y named, están activos. En dhcpd.conf se ve el tiempo de concesión de una hora, el rango dinámico partido en dos para excluir de la .150 a la .159, y la reserva de cliente01 por su dirección MAC. La zona directa tiene los registros NS, MX, A y CNAME; la zona inversa, los PTR; y los reenviadores envían a Google y Cloudflare todo lo que no es de empresa.lan. En otra terminal dejo abierto el log del DHCP para ver las solicitudes en tiempo real.
 
 **Terminal 1 del servidor:**
 
@@ -116,6 +122,8 @@ sudo journalctl -u isc-dhcp-server -f
 
 ## 3. Cliente: asignación DINÁMICA (≈ 1 min)
 
+> 🎙️ **Qué decir:** Enciendo el cliente con una MAC que el servidor no conoce. En el log aparece el proceso DORA: Discover, el cliente busca un servidor; Offer, el servidor le ofrece una IP; Request, el cliente la acepta; y Ack, el servidor la confirma. Como esa MAC no tiene reserva, recibe una IP del rango dinámico.
+
 1. **Enciende Cliente-U4** (con la MAC nueva). Mientras arranca, mira la terminal 2 del servidor:
    aparecen **DHCPDISCOVER → DHCPOFFER → DHCPREQUEST → DHCPACK** con una IP **.10x**.
 2. En el cliente, abre una terminal:
@@ -134,6 +142,8 @@ cat /sys/class/net/enp0s3/address
 
 ## 4. Servidor: concesión registrada (≈ 30 s)
 
+> 🎙️ **Qué decir:** El servidor guarda cada concesión dinámica en el archivo dhcpd.leases: la IP entregada, cuándo empieza, cuándo vence y la MAC del equipo que la tiene.
+
 **Terminal 1 del servidor:**
 
 ```bash
@@ -144,6 +154,8 @@ tail -n 12 /var/lib/dhcp/dhcpd.leases
 ---
 
 ## 5. Cliente: RESERVA por MAC (≈ 1:30 min)
+
+> 🎙️ **Qué decir:** Ahora regreso el cliente a su MAC original, que sí está registrada. Al encender, el log muestra DHCPACK con la 192.168.50.20, la IP reservada. El script del cliente confirma todos los datos que recibió: la IP, la puerta de enlace, el servidor DNS, el dominio y el tiempo de concesión.
 
 1. **Apaga Cliente-U4.**
 2. En VirtualBox: **Configuración → Red → Adaptador 1 → Avanzado → Dirección MAC** → escribe **`080027818D77`** → **Aceptar**.
@@ -160,6 +172,8 @@ bash scripts/cliente_pruebas.sh
 
 ## 6. Cliente: RENOVACIÓN de la concesión (≈ 40 s)
 
+> 🎙️ **Qué decir:** Con la opción renovar, el cliente suelta su IP y la vuelve a pedir. En el log se repite el ciclo completo y el cliente conserva su IP reservada con un nuevo vencimiento.
+
 ```bash
 bash scripts/cliente_pruebas.sh renovar
 ```
@@ -170,6 +184,8 @@ Detén el log del servidor con **Ctrl + C** cuando termines este paso.
 ---
 
 ## 7. Cliente: resolución de nombres (≈ 2 min)
+
+> 🎙️ **Qué decir:** Ahora pruebo el DNS. Al buscar www.empresa.lan, el servidor responde que es un alias de srv01 y que su IP es la .10: esa es la resolución directa. Al buscar la IP 192.168.50.10 obtengo el nombre srv01.empresa.lan: la resolución inversa. Con dig consulto también el registro MX del correo, el NS y el PTR del cliente. Por último, www.google.com comprueba que los reenviadores funcionan, y el ping demuestra que el cliente sale a internet a través del servidor.
 
 Limpia la pantalla del cliente con `clear`. En `nslookup` se escribe la IP del servidor al final para que se vea que responde **tu** DNS (línea `Server: 192.168.50.10`).
 
@@ -224,6 +240,8 @@ ping -c 2 www.google.com
 ---
 
 ## 8. Cierre: validación automática (≈ 40 s)
+
+> 🎙️ **Qué decir:** El script de validación comprueba de forma automática el DHCP y el DNS, y no hay ninguna falla. Con esto la red ya asigna direcciones de forma automática y resuelve los nombres del dominio. Gracias.
 
 **Terminal 1 del servidor:**
 

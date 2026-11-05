@@ -10,6 +10,8 @@ La **cámara web** debe aparecer en la **esquina inferior derecha**.
 
 Duración sugerida: **7 a 10 minutos**.
 
+> **Cómo usar este guion:** primero graba **solo la pantalla, sin voz**, siguiendo los pasos y comandos. Después grábate con cámara y micrófono explicando ese video: los bloques **🎙️ Qué decir** están en el mismo orden que la grabación. Léelos como apoyo y dilo con tus palabras.
+
 ---
 
 ## 0. Preparación (antes de presionar "Grabar")
@@ -70,6 +72,8 @@ El archivo `reporte_ventas.txt` es el que vas a subir por SFTP. **Cierra Firefox
 
 ## 1. Presentación (≈ 20 s)
 
+> 🎙️ **Qué decir:** Hola, soy Josué Javier Álvarez Valle. En la Tarea 4.2 configuro un servidor web seguro con HTTPS, usando Apache, PHP y MariaDB, y un servidor de archivos con FTPS y SFTP donde cada usuario queda encerrado en su propia carpeta.
+
 Muestra un texto o diapositiva con:
 
 - Tarea 4.2 — Servicios web HTTPS y transferencia de archivos (FTPS/SFTP)
@@ -79,6 +83,8 @@ Muestra un texto o diapositiva con:
 ---
 
 ## 2. Servidor: servicios activos (≈ 30 s)
+
+> 🎙️ **Qué decir:** En el servidor están activos los cuatro servicios: Apache para la web, MariaDB para la base de datos, vsftpd para FTPS y SSH para SFTP.
 
 **Terminal 1 del servidor:**
 
@@ -90,6 +96,8 @@ systemctl status apache2 mariadb vsftpd ssh -n 0
 ---
 
 ## 3. Servidor: configuración del Virtual Host (≈ 1:30 min)
+
+> 🎙️ **Qué decir:** apache2ctl muestra dos sitios virtuales en el mismo servidor: www.empresa.lan e intranet.empresa.lan. En la configuración del sitio, el puerto 80 tiene una regla que redirige todo a HTTPS, y el puerto 443 activa el cifrado con el certificado y la llave del servidor, además de la cabecera HSTS. La intranet solo permite conexiones de la red interna. En el archivo de seguridad limito el cifrado a TLS 1.2 y 1.3 y oculto la versión de Apache. Los certificados los firmó una autoridad certificadora local que creé para empresa.lan.
 
 ```bash
 sudo apache2ctl -S
@@ -123,6 +131,8 @@ ls -l /etc/ssl/empresa
 
 ## 4. Cliente: navegar al sitio seguro (≈ 2 min)
 
+> 🎙️ **Qué decir:** Desde el cliente escribo http://www.empresa.lan y Firefox cambia solo a https. La página muestra que la conexión usa TLS 1.3 y que PHP leyó de MariaDB la tabla de empleados. En el certificado se ve que fue emitido para www.empresa.lan por la CA de Empresa LAN, sus fechas de validez y los nombres que cubre. Uso una CA propia porque Let's Encrypt no emite certificados para dominios internos. Después abro la intranet, que es el segundo sitio virtual.
+
 1. Abre **Firefox** y escribe en la barra: **`http://www.empresa.lan`** (con http, sin la s).
    > Cambia solo a **https://www.empresa.lan** (redirección 301).
 2. Recorre la página:
@@ -149,6 +159,8 @@ ls -l /etc/ssl/empresa
 
 ## 5. Cliente: pruebas web en la terminal (≈ 40 s)
 
+> 🎙️ **Qué decir:** El script del cliente confirma lo mismo desde la terminal: la redirección 301, el certificado verificado correctamente, los dos sitios respondiendo y las cabeceras de seguridad.
+
 ```bash
 bash scripts/cliente_pruebas.sh web
 ```
@@ -157,6 +169,8 @@ bash scripts/cliente_pruebas.sh web
 ---
 
 ## 6. Servidor: configuración de SFTP/FTPS y jaulas (≈ 1 min)
+
+> 🎙️ **Qué decir:** Para SFTP, los usuarios del grupo sftpusuarios quedan enjaulados en /srv/sftp con su nombre y solo pueden usar SFTP. En vsftpd está desactivado el acceso anónimo, cada usuario queda en la misma jaula y el cifrado TLS es obligatorio. La raíz de la jaula pertenece a root; el usuario solo puede escribir en la carpeta archivos.
 
 **Terminal 1 del servidor:**
 
@@ -184,6 +198,8 @@ sudo journalctl -u ssh -f
 ---
 
 ## 7. Cliente: SFTP con chroot (≈ 2 min)
+
+> 🎙️ **Qué decir:** Entro por SFTP como ftp_ventas. pwd dice que estoy en la raíz, pero esa raíz es su jaula: solo veo la carpeta archivos, no puedo entrar a /etc y cd punto punto no me saca de ahí. Subo un archivo con put y descargo otro con get. Si intento abrir una terminal por SSH, el servidor me responde que solo permite SFTP.
 
 ```bash
 sftp ftp_ventas@ftp.empresa.lan
@@ -241,6 +257,8 @@ ssh ftp_ventas@ftp.empresa.lan
 
 ## 8. Servidor: el archivo llegó a la jaula (≈ 30 s)
 
+> 🎙️ **Qué decir:** En el servidor se ve que el archivo que subí quedó dentro de la carpeta de ftp_ventas, que es lo que el usuario veía como /archivos.
+
 Detén el log de la terminal 2 con **Ctrl + C**. En la terminal 1:
 
 ```bash
@@ -251,6 +269,8 @@ sudo ls -l /srv/sftp/ftp_ventas/archivos
 ---
 
 ## 9. Cliente: FTPS (≈ 40 s)
+
+> 🎙️ **Qué decir:** En FTPS se rechazan el usuario anónimo y el inicio de sesión sin cifrar; con TLS el usuario entra y también queda enjaulado. El log de vsftpd registra cada intento.
 
 En el servidor, deja el log de vsftpd abierto en la terminal 2:
 
@@ -275,6 +295,8 @@ Detén el log con **Ctrl + C**.
 ---
 
 ## 10. Cierre: validación automática (≈ 40 s)
+
+> 🎙️ **Qué decir:** El script de validación comprueba la web, el cifrado, la base de datos, FTPS y SFTP, y no hay fallas. Así quedan un sitio seguro con HTTPS y un servidor de archivos protegido. Gracias.
 
 **Terminal 1 del servidor:**
 
