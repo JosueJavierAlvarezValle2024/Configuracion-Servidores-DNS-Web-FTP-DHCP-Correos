@@ -1,0 +1,9 @@
+# =============================================================================
+#  remitentes_internos - Remitentes que no se aceptan en el puerto 25 (Tarea 4.3)
+#  Ruta en el servidor: /etc/postfix/remitentes_internos
+#  La usa smtpd_sender_restrictions (main.cf) con check_sender_access.
+#  Formato: dominio_o_direccion   accion [texto para el remitente]
+# =============================================================================
+
+# Correo "de" empresa.lan sin iniciar sesion: se rechaza e indica el puerto correcto
+empresa.lan    REJECT Para enviar como empresa.lan usa el puerto 587 con usuario y contrasena

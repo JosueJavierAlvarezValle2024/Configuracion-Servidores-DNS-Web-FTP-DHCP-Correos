@@ -77,11 +77,12 @@ smtpd_sasl_security_options = noanonymous
 # --- Reglas anti abuso ---
 # Nadie puede usar el servidor para reenviar correo a otros dominios (open relay)
 smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
-# Anti suplantacion: un mensaje con remitente @empresa.lan solo se acepta si el
-# usuario inicio sesion como ese buzon. En el puerto 25 no hay autenticacion,
-# asi que ahi se rechaza (los usuarios deben enviar por el 587).
-smtpd_sender_login_maps = texthash:/etc/postfix/buzones
-smtpd_sender_restrictions = reject_unauthenticated_sender_login_mismatch
+# Anti suplantacion en el puerto 25: ahi nadie inicia sesion, asi que un mensaje
+# que dice venir de @empresa.lan es falso o mal configurado y se rechaza.
+# Los usuarios envian por el 587, que tiene sus propias reglas en master.cf.
+# (reject_unauthenticated_sender_login_mismatch no sirve aqui: solo actua donde
+# la autenticacion SASL esta activada.)
+smtpd_sender_restrictions = permit_mynetworks, check_sender_access texthash:/etc/postfix/remitentes_internos
 smtpd_helo_required = yes
 smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname
 # No revela que direcciones existen

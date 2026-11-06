@@ -37,7 +37,7 @@ Cada paso queda registrado en **`/var/log/mail.log`**: `postfix/submission/smtpd
 
 | Puerto | Servicio | Uso | Seguridad |
 |---|---|---|---|
-| 25/TCP | Postfix `smtp` | Correo que llega de otros servidores | STARTTLS ofrecido; solo acepta destinatarios de `empresa.lan` (sin relay abierto); rechaza buzones inexistentes |
+| 25/TCP | Postfix `smtp` | Correo que llega de otros servidores | STARTTLS ofrecido; solo acepta destinatarios de `empresa.lan` (sin relay abierto); rechaza buzones inexistentes y remitentes `@empresa.lan` (deben usar el 587) |
 | 587/TCP | Postfix `submission` | Envío desde Thunderbird | **TLS obligatorio**, autenticación obligatoria, cada usuario solo envía con su propia dirección |
 | 993/TCP | Dovecot `imaps` | Leer el correo | **TLS desde el inicio**; 143 y 110 (sin cifrar) desactivados |
 
@@ -87,7 +87,8 @@ Unidad_4/Tarea_4.3/
 │   ├── postfix/
 │   │   ├── main.cf              # MTA: dominio virtual, TLS, SASL, anti relay
 │   │   ├── master.cf            # servicios: smtp (25) y submission (587)
-│   │   └── alias_virtuales      # postmaster@, admin@, finanzas@...
+│   │   ├── alias_virtuales      # postmaster@, admin@, finanzas@...
+│   │   └── remitentes_internos  # anti suplantacion en el puerto 25
 │   ├── dovecot/dovecot.conf     # MDA: LMTP, IMAPS, usuarios virtuales (sintaxis 2.4)
 │   ├── ssl/mail.cnf             # certificado de mail.empresa.lan
 │   └── dns/registros_correo.zona  # SPF, DMARC y alias DNS

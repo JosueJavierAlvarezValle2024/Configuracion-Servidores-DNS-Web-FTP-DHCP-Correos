@@ -26,6 +26,7 @@ echo "$HOST_CORREO" > /etc/mailname
 instalar_archivo "$CONFIG_DIR/postfix/main.cf"         /etc/postfix/main.cf         644
 instalar_archivo "$CONFIG_DIR/postfix/master.cf"       /etc/postfix/master.cf       644
 instalar_archivo "$CONFIG_DIR/postfix/alias_virtuales" /etc/postfix/alias_virtuales 644
+instalar_archivo "$CONFIG_DIR/postfix/remitentes_internos" /etc/postfix/remitentes_internos 644
 # La tabla de buzones la llena crear_buzon.sh; aqui solo se crea si no existe
 respaldar "$BUZONES_POSTFIX"
 [[ -f "$BUZONES_POSTFIX" ]] || echo "# $MARCA - buzones de empresa.lan (los agrega crear_buzon.sh)" > "$BUZONES_POSTFIX"

@@ -19,7 +19,7 @@ for s in postfix dovecot; do
 done
 
 titulo "Restaurando archivos"
-for f in /etc/postfix/main.cf /etc/postfix/master.cf /etc/postfix/alias_virtuales "$BUZONES_POSTFIX" \
+for f in /etc/postfix/main.cf /etc/postfix/master.cf /etc/postfix/alias_virtuales /etc/postfix/remitentes_internos "$BUZONES_POSTFIX" \
          /etc/mailname /etc/dovecot/dovecot.conf "$USUARIOS_DOVECOT" "$MAIL_CRT" "$MAIL_KEY" "$VMAIL_DIR"; do
     restaurar "$f"
 done
