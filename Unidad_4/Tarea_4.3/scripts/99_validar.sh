@@ -91,6 +91,8 @@ esperar    "Contrasena incorrecta rechazada (535)"    "535"                \
     swaks --server "$HOST_CORREO" --port 587 --tls --auth LOGIN --auth-user "$A" --auth-password incorrecta --quit-after AUTH
 esperar    "No se puede enviar como otro usuario"     "Sender address rejected" \
     swaks --server "$HOST_CORREO" --port 587 --tls --auth LOGIN --auth-user "$A" --auth-password "$CA_" --from "$B" --to "$B" --quit-after RCPT
+esperar    "25 rechaza remitente @$DOMINIO sin login"  "Sender address rejected" \
+    swaks --server "$HOST_CORREO" --port 25 --tls --from "$B" --to "$A" --quit-after RCPT --ehlo cliente.empresa.lan
 
 titulo "Envio y recepcion entre buzones"
 ASUNTO="Prueba 99_validar $(date +%H%M%S)"
