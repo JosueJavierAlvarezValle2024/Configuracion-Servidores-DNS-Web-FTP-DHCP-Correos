@@ -48,18 +48,14 @@ Los pasos 1 a 6, 11 a 14 y 21 a 22 se hacen en el **servidor**; los demás, en e
 | 20 | ≈ 20 s | `ssh ftp_ventas@ftp.empresa.lan` → escribir la contraseña | ✗ **`This service allows sftp connections only.`** y luego `Connection to ftp.empresa.lan closed.` (puede salir antes un aviso sobre la *PTY*) | **Sin terminal.** Ahora intento entrar con SSH normal, para tener una terminal en el servidor. Aunque la contraseña es correcta, el servidor me responde que solo permite conexiones SFTP y me cierra la conexión. Así el usuario puede pasar archivos, pero no puede ejecutar comandos. |
 | 21 | ≈ 20 s | **Terminal 2 del servidor:** detener el log con **Ctrl + C** · **Terminal 1:** `sudo ls -l /srv/sftp/ftp_ventas/archivos` (ver nota abajo) | El log se detiene (antes debieron verse las operaciones de la sesión: abrir la carpeta, escribir el archivo, cerrar sesión) · `bienvenida.txt` y **`reporte_ventas.txt`** con dueño **ftp_ventas** | **El archivo llegó.** Detengo el log; ahí quedaron registradas las operaciones que hice. En el servidor reviso la carpeta real: /srv/sftp/ftp_ventas/archivos. Ahí está reporte_ventas.txt. Lo que el usuario veía como /archivos es en realidad esta carpeta dentro de la jaula. |
 | 22 | ≈ 10 s | **Terminal 2 del servidor:** `sudo tail -f /var/log/vsftpd.log` | Las últimas líneas del log de vsftpd y el cursor esperando | **Log de FTPS.** Ahora dejo abierto el registro de vsftpd para ver los intentos de conexión por FTPS. |
-| 23 | ≈ 40 s | **Terminal del cliente:** `bash scripts/cliente_pruebas.sh ftps` → escribir la contraseña de `ftp_ventas` | `==== FTPS en ftp.empresa.lan ====` · ✓ `OK Acceso anonimo rechazado` · `Contrasena:` (no se ve al teclear) · ✓ `OK Inicio de sesion SIN cifrar rechazado` · ✓ `OK Inicio de sesion con TLS correcto. Contenido de la raiz (jaula): archivos` · en la terminal 2 del servidor, los intentos de conexión, los inicios de sesión rechazados y el correcto | **Pruebas de FTPS.** Este script hace tres intentos. Primero entra como anónimo, sin usuario: el servidor lo rechaza. Luego entra con la contraseña correcta, pero sin cifrar: también lo rechaza, porque obligué a usar cifrado. Por último entra con la misma contraseña usando TLS: ahora sí entra, y en la raíz solo ve archivos, porque también queda en la jaula. En el log del servidor se ve cada intento. |
-| 24 | ≈ 40 s | ⚠️ **Terminal 1 del servidor:** `sudo bash scripts/99_validar.sh` (tu lista se corta en "SERVIDOR,", ver nota abajo) | Secciones *Pruebas WEB*, *Pruebas FTPS* y *Pruebas SFTP* con líneas ✓ `[PASA]` y al final **`Pruebas que fallaron: 0`** | **Validación y cierre.** Para terminar, el script de validación revisa de forma automática todo lo que mostré: la web, el cifrado, la base de datos, FTPS y SFTP. No hay ninguna falla. Así quedan un sitio web seguro con HTTPS y un servidor de archivos donde cada usuario solo ve su propia carpeta. Gracias. |
+| 23 | ≈ 40 s | **Terminal del cliente:** `bash scripts/cliente_pruebas.sh ftps` → escribir la contraseña de `ftp_ventas` | `==== FTPS en ftp.empresa.lan ====` · ✓ `OK Acceso anonimo rechazado` · `Contrasena:` (no se ve al teclear) · ✓ `OK Inicio de sesion SIN cifrar rechazado` · ✓ `OK Inicio de sesion con TLS correcto. Contenido de la raiz (jaula): archivos` · en la terminal 2 del servidor, los intentos de conexión, los inicios de sesión rechazados y el correcto | **Pruebas de FTPS.** Este script hace tres intentos. Primero entra como anónimo, sin usuario: el servidor lo rechaza. Luego entra con la contraseña correcta, pero sin cifrar: también lo rechaza, porque obligué a usar cifrado. Por último entra con la misma contraseña usando TLS: ahora sí entra, y en la raíz solo ve archivos, porque también queda en la jaula. En el log del servidor se ve cada intento.<br><br>**Cierre.** Con esto termino: queda un sitio web seguro con HTTPS y un certificado propio, y un servidor de archivos por SFTP y FTPS donde cada usuario solo ve su propia carpeta. Gracias. |
 
 **Nota del paso 10:** en tu lista dice `cliente_prueba.sh` (sin la **s**). Ese archivo no existe: si así se tecleó, la terminal responde *No such file or directory* y no corre ninguna prueba. El nombre correcto es `cliente_pruebas.sh`, como en el paso 23. Revisa tu video: si salió el error, recórtalo o graba solo ese comando de nuevo.
 
 **Nota del paso 21:** en tu lista dice `/srv/sftp_ventas/archivos`. La carpeta real es **`/srv/sftp/ftp_ventas/archivos`** (`sftp` y `ftp_ventas` son dos carpetas distintas). Con la ruta de tu lista sale *No such file or directory* y no se ve el archivo subido.
 
-**Nota del paso 24:** tu lista termina en "SERVIDOR," sin comando. Puse la validación porque era el cierre del guion anterior. Si en tu video hiciste otra cosa (o nada), cambia o borra esta fila y pasa su narración de cierre al paso 23.
-
 ## Después de grabar
 
-- La validación guarda su salida en `evidencias/validacion_<fecha>.txt`: es un entregable del repositorio.
 - Toma las capturas para el reporte técnico:
 
   | # | Paso | Captura |
@@ -77,8 +73,6 @@ Los pasos 1 a 6, 11 a 14 y 21 a 22 se hacen en el **servidor**; los demás, en e
   | 11 | 20 | `ssh` rechazado (solo sftp) |
   | 12 | 21 | Archivo subido en `/srv/sftp/ftp_ventas/archivos` |
   | 13 | 23 | `cliente_pruebas.sh ftps` y log de vsftpd |
-  | 14 | 24 | Resultado de `99_validar.sh` |
-
 ## Si algo sale mal durante la grabación
 
 | Problema | Solución |
